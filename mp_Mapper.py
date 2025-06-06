@@ -116,8 +116,8 @@ class Mapper(SLAMParameters):
             network_gui.init("127.0.0.1", 6009)
         
         if self.rerun_viewer:
-            rr.init("3dgsviewer")
-            rr.connect()
+            rr.init("3dgsviewer", spawn=True)
+            #rr.connect()
         
         # Mapping Process is ready to receive first frame
         self.is_mapping_process_started[0] = 1

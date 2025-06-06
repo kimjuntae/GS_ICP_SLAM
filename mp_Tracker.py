@@ -101,8 +101,8 @@ class Tracker(SLAMParameters):
         tt = torch.zeros((1,1)).float().cuda()
         
         if self.rerun_viewer:
-            rr.init("3dgsviewer")
-            rr.connect()
+            rr.init("3dgsviewer", spawn=True)
+            #rr.connect()
         
         self.rgb_images, self.depth_images = self.get_images(f"{self.dataset_path}/images")
         self.num_images = len(self.rgb_images)
