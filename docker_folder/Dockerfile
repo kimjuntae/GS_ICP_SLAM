@@ -22,12 +22,18 @@ RUN ln -s -f /usr/bin/python /usr/bin/python3
 # For pcl (including pcl visualizer)
 RUN sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 RUN curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
-RUN sudo apt update
-RUN sudo apt install -y ros-noetic-desktop-full
 
-# GS-ICP SLAM
-WORKDIR /home
-RUN git clone --recursive https://github.com/Lab-of-AI-and-Robotics/GS_ICP_SLAM.git
+
+RUN sed -i 's|archive.ubuntu.com|mirror.kakao.com|g' /etc/apt/sources.list && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get update
+RUN rm /etc/apt/sources.list.d/cuda.list
+RUN sudo apt install -y --fix-missing ros-noetic-desktop-full
+
+# # GS-ICP SLAM
+WORKDIR /${HOME}/sources
+# RUN git clone --recursive https://github.com/Lab-of-AI-and-Robotics/GS_ICP_SLAM.git
 
 ## Dependency
 RUN echo "export CUDA_HOME=/usr/local/cuda && export PATH=/usr/local/cuda-11.8/bin:$PATH && LD_LIBRARY_PATH=/usr/local/cuda-11.8/lib64:/lib64:$LD_LIBRARY_PATH" >> ~/.bashrc
@@ -39,13 +45,13 @@ RUN pip3 install --upgrade pip
 RUN pip3.9 install open3d --ignore-installed PyYAML
 
 ## fast_gicp
-WORKDIR /home/GS_ICP_SLAM
-WORKDIR /home/GS_ICP_SLAM/submodules/fast_gicp
+WORKDIR /${HOME}/sources/GS_ICP_SLAM
+WORKDIR /${HOME}/sources/GS_ICP_SLAM/submodules/fast_gicp
 RUN mkdir build
-WORKDIR /home/GS_ICP_SLAM/submodules/fast_gicp/build
+WORKDIR /${HOME}/sources/GS_ICP_SLAM/submodules/fast_gicp/build
 RUN cmake ..
 RUN make -j4
-WORKDIR /home/GS_ICP_SLAM/submodules/fast_gicp
+WORKDIR /${HOME}/sources/GS_ICP_SLAM/submodules/fast_gicp
 RUN python setup.py install --user
 
 # RUN pip install submodules/diff-gaussian-rasterization
@@ -56,37 +62,37 @@ RUN python setup.py install --user
 RUN sudo apt install -y libglew-dev libgtk-3-dev libassimp-dev libglfw3-dev libavdevice-dev libxxf86vm-dev
 #### opencv (ver 4.5 required)
 RUN sudo apt-get install -y libjpeg-dev libtiff5-dev libpng-dev \
-                        libavcodec-dev libavformat-dev libswscale-dev libxvidcore-dev libx264-dev libxine2-dev \
-                        libv4l-dev v4l-utils \
-                        libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
-                        libgtk2.0-dev mesa-utils libgl1-mesa-dri libgtkgl2.0-dev libgtkglext1-dev \
-                        libatlas-base-dev gfortran libeigen3-dev
-WORKDIR /home
+    libavcodec-dev libavformat-dev libswscale-dev libxvidcore-dev libx264-dev libxine2-dev \
+    libv4l-dev v4l-utils \
+    libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+    libgtk2.0-dev mesa-utils libgl1-mesa-dri libgtkgl2.0-dev libgtkglext1-dev \
+    libatlas-base-dev gfortran libeigen3-dev
+WORKDIR /${HOME}/sources
 RUN mkdir opencv
-WORKDIR /home/opencv
+WORKDIR /${HOME}/sources/opencv
 RUN wget -O opencv.zip https://github.com/opencv/opencv/archive/4.5.5.zip
 RUN wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.5.5.zip
 RUN unzip opencv.zip && unzip opencv_contrib.zip
 RUN rm opencv.zip && rm opencv_contrib.zip
-WORKDIR /home/opencv/opencv-4.5.5
+WORKDIR /${HOME}/sources/opencv/opencv-4.5.5
 RUN mkdir build
-WORKDIR /home/opencv/opencv-4.5.5/build
-RUN cmake -D OPENCV_EXTRA_MODULES_PATH=/home/opencv/opencv_contrib-4.5.5/modules ..
+WORKDIR /${HOME}/sources/opencv/opencv-4.5.5/build
+RUN cmake -D OPENCV_EXTRA_MODULES_PATH=/${HOME}/sources/opencv/opencv_contrib-4.5.5/modules ..
 RUN make -j4
 RUN sudo make install
 
 #### embree 3.0
-WORKDIR /home
+WORKDIR /${HOME}/sources
 RUN wget https://github.com/embree/embree/archive/refs/tags/v3.0.0.tar.gz
 RUN tar -zxvf v3.0.0.tar.gz
-WORKDIR /home/embree-3.0.0
+WORKDIR /${HOME}/sources/embree-3.0.0
 RUN mkdir build
-WORKDIR /home/embree-3.0.0/build
+WORKDIR /${HOME}/sources/embree-3.0.0/build
 RUN cmake -D EMBREE_ISPC_SUPPORT=False ..
 RUN make -j4
 RUN sudo make install
 
 ### build / install
-WORKDIR /home/GS_ICP_SLAM/SIBR_viewers
+WORKDIR /${HOME}/sources/GS_ICP_SLAM/SIBR_viewers
 RUN cmake -Bbuild . -DCMAKE_BUILD_TYPE=Release
 RUN cmake --build build -j4 --target install
