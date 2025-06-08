@@ -19,6 +19,7 @@ from tqdm import tqdm
 from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
 import open3d as o3d
 import matplotlib.pyplot as plt
+from utils.pose_utils import save_poses_compact
 
 class Pipe():
     def __init__(self, convert_SHs_python, compute_cov3D_python, debug):
@@ -94,7 +95,8 @@ class Mapper(SLAMParameters):
         self.mapping_losses = []
         self.new_keyframes = []
         self.gaussian_keyframe_idxs = []
-        
+        self.save_poses = True 
+
         self.shared_cam = slam.shared_cam
         self.shared_new_points = slam.shared_new_points
         self.shared_new_gaussians = slam.shared_new_gaussians
@@ -342,6 +344,10 @@ class Mapper(SLAMParameters):
         original_resolution = True
         image_names, depth_image_names = self.get_image_dirs(self.dataset_path)
         final_poses = self.final_pose
+        
+        if self.save_poses:
+                save_poses_compact(image_names, final_poses, f"{self.output_path}/poses_all.txt")
+        
         fig, axs = plt.subplots(1, 2, figsize=(10, 5))
         
         with torch.no_grad():
