@@ -20,6 +20,7 @@ class TrajManager:
             self.gt_poses = self.tum_load_poses(self.dataset_path + '/traj.txt')
         elif self.which_dataset == "replica":
             self.gt_poses = self.replica_apart_load_poses(self.dataset_path + '/traj.txt')
+            self.gt_poses = self.gt_poses[:1000]
         else:
             print("Unknown dataset!")
             sys.exit()
