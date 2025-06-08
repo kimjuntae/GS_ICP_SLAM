@@ -136,10 +136,11 @@ class GS_ICP_SLAM(SLAMParameters):
             images_folder = os.path.join(self.dataset_path, "images")
             image_files = os.listdir(images_folder)
             image_files = sorted(image_files.copy())
+            image_files = image_files[:1000] 
             image_name = image_files[0].split(".")[0]
-            depth_image_name = f"depth{image_name[5:]}"
+            depth_image_name = f"{image_name[5:]}"
             rgb_image = cv2.imread(f"{self.dataset_path}/images/{image_name}.jpg")
-            depth_image = np.array(o3d.io.read_image(f"{self.dataset_path}/depth_images/{depth_image_name}.png")).astype(np.float32)
+            depth_image = np.array(o3d.io.read_image(f"{self.dataset_path}/depth_images/{image_name}.png")).astype(np.float32)
         elif self.camera_parameters[8] == "tum":
             rgb_folder = os.path.join(self.dataset_path, "rgb")
             depth_folder = os.path.join(self.dataset_path, "depth")

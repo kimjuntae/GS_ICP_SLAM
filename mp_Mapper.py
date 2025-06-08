@@ -321,11 +321,12 @@ class Mapper(SLAMParameters):
             images_folder = os.path.join(images_folder, "images")
             image_files = os.listdir(images_folder)
             image_files = sorted(image_files.copy())
+            image_files = image_files[:1000] 
             for key in tqdm(image_files):
                 image_name = key.split(".")[0]
                 depth_image_name = f"depth{image_name[5:]}"    
                 color_paths.append(f"{self.dataset_path}/images/{image_name}.jpg")            
-                depth_paths.append(f"{self.dataset_path}/depth_images/{depth_image_name}.png")
+                depth_paths.append(f"{self.dataset_path}/depth_images/{image_name}.png")
                 
             return color_paths, depth_paths
         elif self.trajmanager.which_dataset == "tum":

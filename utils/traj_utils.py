@@ -19,7 +19,7 @@ class TrajManager:
         if self.which_dataset == "tum":
             self.gt_poses = self.tum_load_poses(self.dataset_path + '/traj.txt')
         elif self.which_dataset == "replica":
-            self.gt_poses = self.replica_load_poses(self.dataset_path + '/traj.txt')
+            self.gt_poses = self.replica_apart_load_poses(self.dataset_path + '/traj.txt')
         else:
             print("Unknown dataset!")
             sys.exit()
@@ -50,6 +50,41 @@ class TrajManager:
             # c2w[:3, 2] *= -1
             # c2w = torch.from_numpy(c2w).float()
             poses.append(c2w)
+        return np.array(poses)
+    
+    def replica_apart_load_poses(self, path):
+        poses = []
+        frame_info = []
+        with open(path, "r") as f:
+            lines = f.readlines()
+        
+        i = 0
+        while i < len(lines):
+            if len(lines[i].strip()) == 0:  # 빈 줄 처리
+                i += 1
+                continue
+                
+            # 첫 번째 줄은 프레임 정보
+            frame_indices = list(map(int, lines[i].split()))
+            frame_info.append(frame_indices)
+            i += 1
+            
+            # 다음 4줄은 4x4 변환 행렬
+            if i + 3 < len(lines):
+                matrix = []
+                for j in range(4):
+                    if i + j < len(lines):
+                        row = list(map(float, lines[i + j].split()))
+                        matrix.append(row)
+                
+                if len(matrix) == 4:
+                    c2w = np.array(matrix)
+                    poses.append(c2w)
+                
+                i += 4
+            else:
+                break
+        
         return np.array(poses)
 
     def pose_matrix_from_quaternion(self, pvec):

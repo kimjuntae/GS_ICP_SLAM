@@ -53,7 +53,7 @@ run_()
     local downsample_rate=${10}
     
     echo "run $dataset"
-    python -W ignore gs_icp_slam.py --rerun_viewer --dataset_path $DATASET_PATH/$dataset\
+    python -W ignore gs_icp_slam.py --dataset_path $DATASET_PATH/$dataset\
                                     --config $config\
                                     --output_path $OUTPUT_PATH\
                                     --keyframe_th $keyframe_th\

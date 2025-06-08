@@ -340,12 +340,13 @@ class Tracker(SLAMParameters):
         if self.trajmanager.which_dataset == "replica":
             image_files = os.listdir(images_folder)
             image_files = sorted(image_files.copy())
+            image_files = image_files[:1000] 
             for key in tqdm(image_files): 
                 image_name = key.split(".")[0]
                 depth_image_name = f"depth{image_name[5:]}"
                 
                 rgb_image = cv2.imread(f"{self.dataset_path}/images/{image_name}.jpg")
-                depth_image = np.array(o3d.io.read_image(f"{self.dataset_path}/depth_images/{depth_image_name}.png"))
+                depth_image = np.array(o3d.io.read_image(f"{self.dataset_path}/depth_images/{image_name}.png"))
                 
                 rgb_images.append(rgb_image)
                 depth_images.append(depth_image)
